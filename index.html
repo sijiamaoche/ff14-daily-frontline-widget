@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0a14">
+<title>FF14 每日纷争前线</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: linear-gradient(170deg, #0c0a14 0%, #12101e 40%, #0e0c18 100%);
+    color: #e8e6e3;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 0 32px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 440px; margin: 0 auto; padding: 24px 20px; }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 28px; padding-top: 12px; }
+  .header-sub {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.25); margin-bottom: 8px;
+  }
+  .header-title {
+    font-size: 26px; font-weight: 700;
+    font-family: 'Noto Serif SC', serif;
+    background: linear-gradient(135deg, #e8e6e3, #a8a4a0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.05em;
+  }
+  .header-en { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+  /* ── Countdown ── */
+  .countdown-bar {
+    display: flex; justify-content: center; align-items: center;
+    gap: 10px; margin-bottom: 24px;
+  }
+  .countdown-label { font-size: 12px; color: rgba(255,255,255,0.35); }
+  .countdown-time {
+    font-size: 22px; font-weight: 700; letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+
+  /* ── Today Card ── */
+  .today-card {
+    border-radius: 16px; padding: 22px 24px;
+    position: relative; overflow: hidden;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+  }
+  .today-card .glow {
+    position: absolute; top: 0; right: 0; width: 130px; height: 130px;
+    pointer-events: none; border-radius: 0 16px 0 0;
+  }
+  .today-row { display: flex; align-items: center; gap: 16px; position: relative; }
+  .today-icon {
+    font-size: 36px; width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px; flex-shrink: 0;
+  }
+  .today-info { flex: 1; min-width: 0; }
+  .today-label {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .today-name {
+    font-size: 22px; font-weight: 700;
+    font-family: 'Noto Serif SC', serif;
+  }
+  .today-mode { font-size: 14px; font-weight: 600; margin-left: 8px; }
+  .today-en { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+  .today-desc { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+  .today-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .today-tag {
+    font-size: 11px; color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 10px; border-radius: 6px;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px; margin: 6px 0 18px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  }
+
+  /* ── Section Title ── */
+  .section-title {
+    font-size: 12px; color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em; font-weight: 500; margin-bottom: 12px;
+  }
+
+  /* ── Upcoming List ── */
+  .upcoming-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    margin-bottom: 8px;
+    transition: background 0.2s;
+  }
+  .upcoming-item:active { background: rgba(255,255,255,0.05); }
+  .upcoming-date {
+    font-size: 12px; color: rgba(255,255,255,0.3);
+    width: 78px; flex-shrink: 0;
+  }
+  .upcoming-date strong { color: rgba(255,255,255,0.5); font-weight: 500; }
+  .upcoming-icon { font-size: 18px; width: 28px; text-align: center; }
+  .upcoming-info { flex: 1; }
+  .upcoming-name {
+    font-size: 14px; font-weight: 600; color: #e8e6e3;
+    font-family: 'Noto Serif SC', serif;
+  }
+  .upcoming-mode { font-size: 11px; margin-left: 6px; }
+  .upcoming-en { font-size: 11px; color: rgba(255,255,255,0.25); }
+  .upcoming-dot {
+    width: 6px; height: 6px; border-radius: 50%; opacity: 0.6; flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; margin-top: 28px;
+    font-size: 10px; color: rgba(255,255,255,0.12); line-height: 2;
+  }
+
+  /* ── Note ── */
+  .note {
+    text-align: center; margin-top: 20px; padding: 12px 16px;
+    background: rgba(255,255,255,0.03); border-radius: 10px;
+    font-size: 11px; color: rgba(255,255,255,0.3); line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-sub">FINAL FANTASY XIV · 7.5</div>
+    <div class="header-title">每日纷争前线</div>
+    <div class="header-en">Daily Challenge: Frontline</div>
+  </div>
+
+  <div class="countdown-bar">
+    <span class="countdown-label">下次刷新</span>
+    <span class="countdown-time" id="countdown">--:--:--</span>
+  </div>
+
+  <div class="today-card" id="todayCard">
+    <div class="glow" id="todayGlow"></div>
+    <div class="today-row">
+      <div class="today-icon" id="todayIcon"></div>
+      <div class="today-info">
+        <div class="today-label" id="todayLabel">今日地图</div>
+        <div>
+          <span class="today-name" id="todayName"></span>
+          <span class="today-mode" id="todayMode"></span>
+        </div>
+        <div class="today-en" id="todayEn"></div>
+        <div class="today-desc" id="todayDesc"></div>
+      </div>
+    </div>
+    <div class="today-tags" id="todayTags"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title">未来 7 日排期</div>
+  <div id="upcomingList"></div>
+
+  <div class="note">
+    安卓用户：浏览器菜单 →「添加到主屏幕」可当 App 使用<br>
+    iOS 用户：Safari 分享 →「添加到主屏幕」
+  </div>
+
+  <div class="footer">
+    每日北京时间 23:00 刷新 · 8 天一循环<br>
+    尘封秘岩 → 荣誉野 → 昂萨哈凯尔 → 沃刻其特<br>
+    → 尘封秘岩 → 周边遗迹群 → 昂萨哈凯尔 → 沃刻其特
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// FF14 纷争前线 7.5 · 网页版
+// ════════════════════════════════════════════
+
+// ── 校准设置 ──
+// KNOWN_DATE：填你白天打这张图的日期
+// KNOWN_MAP：对照轮换表填 1-8
+var KNOWN_DATE = "2026-05-08";
+var KNOWN_MAP = 3;
+
+var RESET_HOUR_UTC = 15; // 北京时间 23:00
+
+// ── 地图数据 ──
+var MAPS = [
+  { name:"尘封秘岩", mode:"争夺战", en:"Borderland Ruins",  sub:"Secure",        icon:"⚔️", color:"#c97d3c", accent:"#ffd080", desc:"占领据点·击败魔导兵器·歼灭敌军",   tags:["占领旗帜据点","击破亚拉戈节点","击杀敌方玩家"] },
+  { name:"荣誉野",   mode:"碎冰战", en:"The Fields of Glory",sub:"Shatter",       icon:"❄️", color:"#3cc9a3", accent:"#80ffd8", desc:"破坏冰丘·争夺大冰丘",             tags:["破坏冰丘获得分数","优先争夺大冰丘","击杀敌方玩家"] },
+  { name:"昂萨哈凯尔",mode:"竞争战", en:"Onsal Hakair",      sub:"Danshig Naadam", icon:"🏴", color:"#c93c6e", accent:"#ff80b0", desc:"争夺旗帜·那达慕大会",             tags:["抢夺与运送旗帜","守卫己方旗帜","击杀敌方玩家"] },
+  { name:"沃刻其特", mode:"演习战", en:"Worqor Chirteh",     sub:"Triumph",       icon:"🐉", color:"#8b5cf6", accent:"#c4b5fd", desc:"凯旋模式·战术配合",               tags:["击败敌方玩家","占领凯旋点","战术配合"] },
+  { name:"尘封秘岩", mode:"争夺战", en:"Borderland Ruins",  sub:"Secure",        icon:"⚔️", color:"#c97d3c", accent:"#ffd080", desc:"占领据点·击败魔导兵器·歼灭敌军",   tags:["占领旗帜据点","击破亚拉戈节点","击杀敌方玩家"] },
+  { name:"周边遗迹群",mode:"阵地战", en:"Seal Rock",          sub:"Seize",         icon:"🪨", color:"#3c8cc9", accent:"#80d0ff", desc:"争夺图腾信息·占领图腾柱",         tags:["抢夺图腾柱","维持占领","击杀敌方玩家"] },
+  { name:"昂萨哈凯尔",mode:"竞争战", en:"Onsal Hakair",      sub:"Danshig Naadam", icon:"🏴", color:"#c93c6e", accent:"#ff80b0", desc:"争夺旗帜·那达慕大会",             tags:["抢夺与运送旗帜","守卫己方旗帜","击杀敌方玩家"] },
+  { name:"沃刻其特", mode:"演习战", en:"Worqor Chirteh",     sub:"Triumph",       icon:"🐉", color:"#8b5cf6", accent:"#c4b5fd", desc:"凯旋模式·战术配合",               tags:["击败敌方玩家","占领凯旋点","战术配合"] },
+];
+
+// ── 计算逻辑（与 Scriptable 版完全一致）──
+function getResetTime(date) {
+  var d = new Date(date.getTime());
+  d.setUTCHours(RESET_HOUR_UTC, 0, 0, 0);
+  if (date < d) d.setUTCDate(d.getUTCDate() - 1);
+  return d;
+}
+
+function getMapIndex(now) {
+  var knownReset = getResetTime(new Date(KNOWN_DATE + "T12:00:00+08:00"));
+  var todayReset = getResetTime(now);
+  var daysDiff = Math.round((todayReset - knownReset) / 86400000);
+  return (((KNOWN_MAP - 1 + daysDiff) % 8) + 8) % 8;
+}
+
+function getMapForDay(offset) {
+  var d = new Date(Date.now() + offset * 86400000);
+  return MAPS[getMapIndex(d)];
+}
+
+function getNextResetTime(now) {
+  var reset = getResetTime(now);
+  return new Date(reset.getTime() + 86400000);
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return "已刷新";
+  var h = Math.floor(ms / 3600000);
+  var m = Math.floor((ms % 3600000) / 60000);
+  var s = Math.floor((ms % 60000) / 1000);
+  return pad(h) + ":" + pad(m) + ":" + pad(s);
+}
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function formatDate(offset) {
+  var d = new Date();
+  d.setDate(d.getDate() + offset);
+  var weekdays = ["周日","周一","周二","周三","周四","周五","周六"];
+  return { short: (d.getMonth()+1) + "/" + d.getDate(), weekday: weekdays[d.getDay()] };
+}
+
+// ── 渲染 ──
+function render() {
+  var now = new Date();
+  var todayMap = MAPS[getMapIndex(now)];
+  var nextReset = getNextResetTime(now);
+  var countdown = nextReset - now;
+
+  // Countdown
+  var cdEl = document.getElementById("countdown");
+  cdEl.textContent = formatCountdown(countdown);
+  cdEl.style.color = todayMap.accent;
+  cdEl.style.textShadow = "0 0 20px " + todayMap.color + "40";
+
+  // Today card
+  var card = document.getElementById("todayCard");
+  card.style.background = "linear-gradient(135deg, " + todayMap.color + "18, " + todayMap.color + "30)";
+  card.style.border = "1.5px solid " + todayMap.color + "88";
+
+  document.getElementById("todayGlow").style.background =
+    "radial-gradient(circle at 100% 0%, " + todayMap.color + "15, transparent 70%)";
+
+  var iconEl = document.getElementById("todayIcon");
+  iconEl.textContent = todayMap.icon;
+  iconEl.style.background = todayMap.color + "20";
+
+  var labelEl = document.getElementById("todayLabel");
+  labelEl.style.color = todayMap.accent;
+  labelEl.style.background = todayMap.color + "25";
+
+  document.getElementById("todayName").textContent = todayMap.name;
+
+  var modeEl = document.getElementById("todayMode");
+  modeEl.textContent = todayMap.mode;
+  modeEl.style.color = todayMap.accent;
+
+  document.getElementById("todayEn").textContent = todayMap.en + " · " + todayMap.sub;
+  document.getElementById("todayDesc").textContent = todayMap.desc;
+
+  // Tags
+  var tagsEl = document.getElementById("todayTags");
+  tagsEl.innerHTML = "";
+  todayMap.tags.forEach(function(tag) {
+    var span = document.createElement("span");
+    span.className = "today-tag";
+    span.textContent = tag;
+    tagsEl.appendChild(span);
+  });
+
+  // Upcoming
+  var listEl = document.getElementById("upcomingList");
+  listEl.innerHTML = "";
+  for (var i = 1; i <= 7; i++) {
+    var map = getMapForDay(i);
+    var dateInfo = formatDate(i);
+    var item = document.createElement("div");
+    item.className = "upcoming-item";
+    item.innerHTML =
+      '<div class="upcoming-date"><strong>' + dateInfo.short + '</strong> ' + dateInfo.weekday + '</div>' +
+      '<div class="upcoming-icon">' + map.icon + '</div>' +
+      '<div class="upcoming-info">' +
+        '<div><span class="upcoming-name">' + map.name + '</span>' +
+        '<span class="upcoming-mode" style="color:' + map.accent + ';opacity:0.7">' + map.mode + '</span></div>' +
+        '<div class="upcoming-en">' + map.en + '</div>' +
+      '</div>' +
+      '<div class="upcoming-dot" style="background:' + map.color + '"></div>';
+    listEl.appendChild(item);
+  }
+}
+
+// ── 启动 ──
+render();
+setInterval(function() {
+  document.getElementById("countdown").textContent = formatCountdown(getNextResetTime(new Date()) - new Date());
+}, 1000);
+
+// 每分钟检查是否需要重新渲染（跨过23:00时自动切换地图）
+setInterval(function() { render(); }, 60000);
+</script>
+</body>
+</html>
