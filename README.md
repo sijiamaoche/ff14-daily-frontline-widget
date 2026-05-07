@@ -80,7 +80,6 @@ const KNOWN_MAP = 3;
 |------|------|
 | `index.html` | 网页版（GitHub Pages 在线访问） |
 | `ff14战场小组件.js` | iOS Scriptable 小组件脚本 |
-| `FF14纷争前线小组件使用说明.md` | 详细使用说明 |
 
 ## 技术信息
 
